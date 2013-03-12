@@ -98,7 +98,7 @@ Getting elements
 
 	$trie->get("Some key");
 
-**Under review:** Return the whole object, like it does now, or return only the value?
+This returns the value stored by `"Some key"`.
 
 
 Counting occurrences
@@ -109,6 +109,7 @@ A key can be inserted into the trie more than once, but it can only have one val
 	$trie->count("some key");
 
 This function hits the filesystem when you give it a string key. If you pass in an object or an array, however, it assumes that the count is to be had in the `count` property or array element so that it can avoid a slower hit to the filesystem.
+
 
 
 Searching (prefix searches)
@@ -180,13 +181,22 @@ The default random pool factor is 50.
 
 You can optionally filter results as the search progresses by specifying a filtering function:
 
-	$results = $trie->prefixed("Jo", 10, FileTrie::SORT_NONE, "myFilter");
+	$results = $trie->prefixed("Jo", 10, FileTrie::SORT_NONE, 'myFilter');
 
 The FileTrie will call the function `myFilter` like so:
 
 	call_user_func('myFilter', $key, $value, $count);
 
 With `myFilter` being replaced by the name of the function you pass in. Your function will receive both the *key* and the *value* of the entry being considered as well as the count (number of occurrences). Return *true* to accept the entry, or *false* to reject it and skip over it.
+
+
+Removing elements
+------
+
+	$trie->remove("some key");
+
+Remove items from the trie with the key. It keeps the directory structure clean.
+
 
 
 Examples

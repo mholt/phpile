@@ -74,7 +74,7 @@ class FileTrie
 
 	
 	/**
-	 * Creates a new FileTrie if it doesn't already exists, or loads an existing one
+	 * Creates a new FileTrie if it doesn't already exist, or loads an existing one
 	 * @var $rt 	The path to the root node (not including the "/root" part) - empty for default
 	 * @var $len 	The key piece length - 0 for default
 	 * @var $klen	The maximum key length as used on the filesystem - 0 for default
@@ -545,7 +545,7 @@ class FileTrie
 		if ($path[0] != DIRECTORY_SEPARATOR && $path[0] != "~" && $path[1] != ":")
 			$path = getcwd().DIRECTORY_SEPARATOR.$path;
 
-		return preg_replace("/\/{2,}/", "/", $path);	// First set this...
+		return preg_replace("/\/{2,}/", "/", $path);
 	}
 
 

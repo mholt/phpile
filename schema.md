@@ -85,16 +85,16 @@ files.
 
 Our data from above would be stored as follows:
 
-    root/j/o/h/n/d/o/e.txt
-    root/j/o/h/n/s/m/i/t/h.txt
-    root/j/o/h/n.txt
-    root/l/a/r/r/y.txt
+    root/j/o/h/n/d/o/e.json
+    root/j/o/h/n/s/m/i/t/h.json
+    root/j/o/h/n.json
+    root/l/a/r/r/y.json
 
-We've chosen to use `.txt` suffixes on files, though `.json` is also preferable.
+We've chosen to use `.json` suffixes on files, though `.txt` is preferable to some.
 Note that the directory `root/j/o/h` looks like:
 
     n
-    n.txt
+    n.json
 
 This is why file suffixes (or extensions) are required. The `n` subfolder contains:
 
@@ -113,10 +113,10 @@ characters, approaching the structure of a *radix tree*.
 
 We could reduce the number of internal nodes by concatenating some nodes, for example:
 
-    root/joh/ndo/e.txt
-    root/joh/nsm/ith.txt
-    root/joh/n.txt
-    root/lar/ry.txt
+    root/joh/ndo/e.json
+    root/joh/nsm/ith.json
+    root/joh/n.json
+    root/lar/ry.json
 
 We've gone from 17 directories and files down to 10. The savings becomes more
 significant with larger datasets.
@@ -145,32 +145,29 @@ used to save and retrieve values, simply by writing and reading a file.
 Translating keys into paths
 ------
 
-**UNDER REVIEW: Restrict to just alphanumerics? (except for file suffix which can have dots and underscores, etc...)**
-
 Given a string as a key, for example "John Doe", how do you get the node's file path?
 Each of the following conventions should be followed:
 
-- Trim whitespace
-- Convert to lowercase
-- Only allow the following characters:
-    - Alphanumeric `[a-z0-9]`
-    - Underscores `_`
-    - A single dot `\.?`
+1. Convert to lowercase
+2. Trim whitespace `\w`
+3. Strip all non-alphanumeric characters `[a-z0-9]`
+4. Append file suffix which, unlike the sanitized key, can include `.` and '_', etc.
 
 Here's a sample, Perl-style regular expression which can be used. Matches should be
 stripped entirely:
 
-    /^\.|[^\w\d\-\.]|[\.]{2,}|\.$/
+    /^\.|[^[:alnum:]]|[\.]{2,}|\.$/
 
-This process will turn `John Doe` into `johndoe` which, once broken into key
+This process will turn `John Doe.` into `johndoe` which, once broken into key
 pieces based on the "key piece length," will make a suitable file path.
 
 To finish, simply insert directory separators at the proper intervals, based on the *key
 piece length*. Then append the file suffix:
 
-    joh/ndo/e.txt
+    joh/ndo/e.json
 
 This is now the path to that node.
+
 
 File Formats
 ------
@@ -185,7 +182,7 @@ The object file, `filetrie`, should be a JSON object, for example:
 
 	{
 		"piecelen": 3,
-		"suffix": ".txt",
+		"suffix": ".json",
 		"rootpath": "./data",
 		"keycount": 232006,
 		"data": null,
@@ -210,7 +207,7 @@ Entry files should be a JSON object, with keys being the properties. This way,
 files can handle collisions in the filesystem in the case two keys sanitize into
 the same (maybe truncated) key value. Example:
 
-**`root/joh/ndo/e.txt`** 
+**`root/joh/ndo/e.json`** 
 
 	{
 		"John Doe": {
@@ -222,7 +219,7 @@ the same (maybe truncated) key value. Example:
 A similar yet distinct key, such as `JohnDoe`, would translate into the same node file
 path. The file could thus accommodate both:
 
-**`root/joh/ndo/e.txt`** 
+**`root/joh/ndo/e.json`** 
 
 	{
 		"John Doe": {
@@ -246,4 +243,4 @@ Symlinks
 
 It is possible to directly reference a particular node from another. In effect, a
 node can "point" to another one (either a leaf or internal node). This can be done using
-symbolic links. **The implementation of this is under review.**
+symbolic links, which are very small. **The implementation of this is under review.**
