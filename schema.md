@@ -48,9 +48,9 @@ Keys and values
 
 Unlike simple prefix tries, FileTries act less like a simple set and more like a
 map/dictionary/associative array. Values are stored in a FileTrie by a specific key,
-which need not be equivalent to the value. Keys are relatively short and should be
-unique. Multiple values can have the same key, but only one value for a key can be
-stored. Storing multiple values to the same key is not allowed.
+which need not be equivalent to the value. Keys are relatively short, case-sensitive,
+and should be unique. Multiple values can have the same key, but only one value for a
+key can be stored. Storing multiple values to the same key is not allowed.
 
 In other words, a key, as this schema currently stands, represents a value, but never
 more than one value. That value may be null, or non-existent.

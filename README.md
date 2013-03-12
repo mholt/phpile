@@ -84,12 +84,22 @@ Your values should probably have a consistent type throughout the whole trie, bu
 
 **From here on, we will assume that the FileTrie object has been constructed and is called `$trie`.**
 
+
 Checking for existence
 ------
 
 	$trie->has("Some key");
 
 This function returns `true` or `false` if it can or can't, respectively, find the key in the trie.
+
+
+Getting elements
+------
+
+	$trie->get("Some key");
+
+**Under review:** Return the whole object, like it does now, or return only the value?
+
 
 Counting occurrences
 ------

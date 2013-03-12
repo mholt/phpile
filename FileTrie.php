@@ -199,7 +199,7 @@ class FileTrie
 	
 	public function has($key)
 	{
-		return $this->get($key) != null;
+		return $this->rawget($key) != null;
 	}
 
 
@@ -207,7 +207,7 @@ class FileTrie
 	{
 		if (is_string($key))
 		{
-			$obj = $this->get($key);
+			$obj = $this->rawget($key);
 			return is_object($obj) ? $obj->count : 0;
 		}
 		else if (is_array($key))
@@ -339,21 +339,61 @@ class FileTrie
 	}
 
 
-	public function delete($key)
+	public function remove($key)
 	{
-		// TODO
+		$p = $this->mkpath($key);
+		$records = $this->getfile($key, $p);
+		$success = true;
+		
+		if (is_null($records) || !property_exists($records, $key))
+			return false;
+		else
+		{
+			unset($records->{$key});
+			$success = file_put_contents($p['fullpath'], json_encode($records)) !== false;
+
+			if (count(get_object_vars($records)) == 0)
+			{
+				// Delete the whole file since it's now empty
+				if (!@unlink($p['fullpath']))
+					return false;
+
+				// Also delete all parent directories that aren't shared with another node.
+				// (We compare against 3 because of "." and ".." items plus the subfolder.)
+				$parent = $p['nodedir'];
+				while (count(scandir($parent)) <= 3 && basename($parent) != "root")
+				{
+					if (!@rmdir($parent))
+						return false;
+					$parent = pathinfo($parent, PATHINFO_DIRNAME);
+				}
+			}
+		}
+
+		return $success;
 	}
 
 
 	public function clear($key)
 	{
-		// TODO
+		// TODO?
 	}
 
 
-	public function get($key, $p = "")
+	public function get($key, $path = "")
 	{
-		$records = $this->getfile($key, $p);
+		$result = $this->rawget($key, $path);
+
+		if (!is_null($result))
+			return property_exists($result, 'value') ? $result->value : null;
+		else
+			return null;
+	}
+
+
+	private function rawget($key, $path = "")
+	{
+		$records = $this->getfile($key, $path);
 
 		if (is_null($records))
 			return null;

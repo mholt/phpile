@@ -6,10 +6,11 @@ require_once "FileTrie.php";
 $trie = new FileTrie("demodata");
 
 $trie->insert("John Doe", "john@doe.com");
+$trie->insert("JohnDoe", "aasdf@acme.com");
 $trie->insert("John Smith", "j0hn@smith.com");
 $trie->insert("John Smith", "j0hn@smith.com");
 $trie->insert("Jane", "j4ne@acme.com");
-$trie->insert("Ihave Novalue", "");
+$trie->insert("Ihave Novalue", null);
 $trie->insert("Little-Bobby-Tables", "xkcd@bobbytables.com");
 $trie->insert("Harry S. Truman", "trumanh@whitehouse.gov");
 
@@ -17,6 +18,13 @@ $trie->insert("Harry S. Truman", "trumanh@whitehouse.gov");
 echo "Has 'Jane'? ".($trie->has("Jane") ? "Y" : "N")."<br>";
 
 echo "Has 'jane'? ".($trie->has("jane") ? "Y" : "N")."<br>";
+
+echo "Has 'Ihave Novalue'? ".($trie->has("Ihave Novalue") ? "Y" : "N")."<br><br>";
+
+echo "Value of 'John Doe': ".$trie->get("John Doe")."<br>";
+echo "Value of 'Ihave Novalue': ";
+var_dump($trie->get("Ihave Novalue"));
+echo "<br><br><br>";
 
 
 echo "Entries starting with 'J':<br><pre>";
