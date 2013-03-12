@@ -145,7 +145,7 @@ Translating keys into paths
 
 **UNDER REVIEW: Restrict to just alphanumerics? (except for file suffix which can have dots and underscores, etc...)**
 
-Given a string as a key, for example, "John Doe", how do you get the node's file path?
+Given a string as a key, for example "John Doe", how do you get the node's file path?
 Each of the following conventions should be followed:
 
 - Trim whitespace
@@ -153,14 +153,14 @@ Each of the following conventions should be followed:
 - Only allow the following characters:
     - Alphanumeric `[a-z0-9]`
     - Underscores `_`
-    - A single dot `[^\.\.+]`
+    - A single dot `\.?`
 
 Here's a sample, Perl-style regular expression which can be used. Matches should be
 stripped entirely:
 
     /^\.|[^\w\d\-\.]|[\.]{2,}|\.$/
 
-This process will turn **`John Doe`** into **`johndoe`** which, once broken into key
+This process will turn `John Doe` into `johndoe` which, once broken into key
 pieces based on the "key piece length," will make a suitable file path.
 
 To finish, simply insert directory separators at the proper intervals, based on the *key

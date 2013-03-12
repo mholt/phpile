@@ -17,7 +17,7 @@ class FileTrie
 
 
 	// If using a real file extension, must include "."
-	const DEFAULT_FILE_SUFFIX = ".txt";
+	const DEFAULT_FILE_SUFFIX = ".json";
 
 	// Default path to trie root; do NOT include trailing slash; relative to cwd
 	const DEFAULT_ROOT = "./data";
@@ -304,7 +304,8 @@ class FileTrie
 				if (!$this->belowlimit())
 					break;
 
-				if (is_callable($this->internal->userfunc) && !$this->internal->userfunc($entry->value))
+				if (is_callable($this->internal->userfunc)
+					&& !call_user_func($this->internal->userfunc, $key, $entry->value, $entry->count))
 					continue;
 				
 				$tmp = new stdClass;
