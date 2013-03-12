@@ -63,11 +63,9 @@ class FileTrie
 	private $piecelen = self::DEFAULT_MAX_PIECE_LEN;	// Maximum length of each piece of the key on the filesystem
 	private $suffix = self::DEFAULT_FILE_SUFFIX;		// File suffix or extension
 	private $rootpath = self::DEFAULT_ROOT;				// Path to the directory of this FileTrie
-	private $nodecount = 0;								// Count includes duplicate/non-distinct keys
 	private $keycount = 0;								// Only counts unique, distinct keys
 	public $data;										// Any arbitrary data you wish to attach to this trie
-	public $randompoolfactor							// Larger numbers make lookups slower but with more interesting results (usually 10-100)
-			= self::DEFAULT_RANDOM_POOL_FACTOR;			
+	public $randompoolfactor = self::DEFAULT_RANDOM_POOL_FACTOR;	// Usually 10-100; larger numbers make lookups slower but with more interesting results
 	private $fskeylen = self::DEFAULT_MAX_KEY_LEN;		// Maximum length of sanitized key which is used on the filesystem
 	private $internal;									// For other internal use; not to be serialized into the object file!
 	
@@ -87,7 +85,7 @@ class FileTrie
 			$klen = self::DEFAULT_MAX_KEY_LEN,
 			$suf = self::DEFAULT_FILE_SUFFIX)
 	{
-		if (!is_string($rt) || strlen(trim($rt)) == 0)
+		if (!is_string($rt) || strlen(trim($rt)) < 2)
 			$rt = self::DEFAULT_ROOT;
 		
 		$rt = trim($rt);
@@ -111,8 +109,8 @@ class FileTrie
 		$this->internal = new stdClass;
 		$this->internal->cwd = getcwd();
 
-		$this->rootpath = realpath($rt);	// First set this...
-		$rootnode = $this->rtpath();		// ...then call this.
+		$this->rootpath = $this->abspath($rt);	// First set this...
+		$rootnode = $this->rtpath();			// ...then call this.
 
 		if (self::valid($this->rootpath))
 		{
@@ -138,9 +136,8 @@ class FileTrie
 		else
 		{
 			// Create a new trie; we're assuming the directories are clean and empty or don't exist
-			
 			if (!mkdir($this->rootpath, 0755, true) && !file_exists($this->rootpath))
-				throw new Exception("Could not create directory '{$absrt}' in which to store the trie.");
+				throw new Exception("Could not create directory '{$this->rootpath}' in which to store the trie.");
 			
 			if (!mkdir($rootnode, 0755, true) && !file_exists($rootnode))
 				throw new Exception("Could not create root node '{$rootnode}.");
@@ -176,7 +173,7 @@ class FileTrie
 		
 		if (is_null($records))
 		{
-			if (!@mkdir($p['nodedir'], 0755, true))
+			if (!mkdir($p['nodedir'], 0755, true))
 				if (!file_exists($p['nodedir']))
 					return false;
 
@@ -186,7 +183,6 @@ class FileTrie
 			$records->{$key}->count = 1;
 
 			$this->keycount ++;
-			$this->nodecount ++;
 		}
 		else
 		{
@@ -195,8 +191,6 @@ class FileTrie
 
 			$records->{$key}->value = $value;
 			$records->{$key}->count ++;
-
-			$this->nodecount ++;
 		}
 
 		return file_put_contents($p['fullpath'], json_encode($records)) !== false;
@@ -212,7 +206,10 @@ class FileTrie
 	public function count($key)
 	{
 		if (is_string($key))
-			return $this->get($key)->count;
+		{
+			$obj = $this->get($key);
+			return is_object($obj) ? $obj->count : 0;
+		}
 		else if (is_array($key))
 			return $key['count'];
 		else if (is_object($key))
@@ -277,17 +274,21 @@ class FileTrie
 		else if ($sorting == self::SORT_COUNT_ASC
 				|| $sorting == self::SORT_COUNT_DESC)
 		{
-			$tmp = array();
+			$counts = array();
+			$sorted = array();
+
 			foreach ($this->internal->results as $result)
-				$tmp[$result->key] = $result->count;
+				$counts[$result->key] = $result->count;
 			
 			if ($sorting == self::SORT_COUNT_ASC)
-				asort($tmp, SORT_NUMERIC);
+				asort($counts, SORT_NUMERIC);
 			else if ($sorting == self::SORT_COUNT_DESC)
-				arsort($tmp, SORT_NUMERIC);
+				arsort($counts, SORT_NUMERIC);
 
-			foreach ($tmp as $key => &$count)
-				$count = $assoc[$key];
+			foreach ($counts as $key => $count)
+				$sorted[$key] = $assoc[$key];
+
+			$assoc = $sorted;
 		}
 
 		return $assoc;
@@ -454,7 +455,7 @@ class FileTrie
 		if (!is_string($key))
 			return false;
 
-		return strtolower(preg_replace("/^\.|[^\w\d\-\.]|[\.]{2,}|\.$/", '', $key));	// TODO: Should we keep hyphens?
+		return strtolower(preg_replace("/^\.|[^[:alnum:]]|[\.]{2,}|\.$/", '', $key));
 	}
 
 
@@ -485,5 +486,31 @@ class FileTrie
 	private static function makertpath($absrt)
 	{
 		return $absrt.DIRECTORY_SEPARATOR.self::ROOT_NODE;
+	}
+
+
+	private function abspath($path)
+	{
+		if ($path[0] == "." && $path[1] == DIRECTORY_SEPARATOR)
+			$path = getcwd().DIRECTORY_SEPARATOR.substr($path, 2);
+		else if ($path[0] == "~")
+		{
+			$path = str_replace("~",
+				isset($_SERVER['HOME'])
+					? $_SERVER['HOME'].DIRECTORY_SEPARATOR
+					: $_SERVER['HOMEDRIVE'].":".DIRECTORY_SEPARATOR.$_SERVER['HOMEPATH'],
+				$path);
+		}
+
+		if ($path[0] != DIRECTORY_SEPARATOR && $path[0] != "~" && $path[1] != ":")
+			$path = getcwd().DIRECTORY_SEPARATOR.$path;
+
+		return preg_replace("/\/{2,}/", "/", $path);	// First set this...
+	}
+
+
+	public function getkeycount()
+	{
+		return $this->keycount;
 	}
 }

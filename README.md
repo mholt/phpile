@@ -9,7 +9,7 @@ How to use FileTrie
 
 First, see the [FileTrie schema](https://github.com/mholt/phpile/blob/master/schema.md) which defines the FileTrie abstract.
 
-But what we've got here is an implemented FileTrie, not an abstract FileTrie. This implementation is done by a PHP class called `FileTrie`.
+But what we've got here is an implemented FileTrie, not an abstract FileTrie. This implementation is done by a PHP class called `FileTrie`. It requires PHP 5.4+.
 
 The following is a quick tutorial.
 
@@ -20,7 +20,7 @@ Creating a new FileTrie structure
 **Create structure in default location (./data):**
 
 	<?php
-	require "FileTrie.php";
+	require_once "FileTrie.php";
 	$trie = new FileTrie();
 	?>
 
@@ -29,7 +29,7 @@ This creates `./data` (the main directory), `./data/root` (the root node), and `
 **Create structure in custom location:**
 
 	<?php
-	require "FileTrie.php";
+	require_once "FileTrie.php";
 	$trie = new FileTrie("../mytrie");
 	?>
 
@@ -39,7 +39,7 @@ Paths can be relative or absolute.
 **More customizations:**
 
 	<?php
-	require "FileTrie.php";
+	require_once "FileTrie.php";
 	$trie = new FileTrie("../mytrie", 2, 15, ".txt");
 	?>
 

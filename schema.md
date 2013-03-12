@@ -4,6 +4,8 @@ FileTrie Schema
 So as to allow FileTrie instances to be communicable between various platforms, languages,
 and implementations, the following schema should be adopted in all cases.
 
+This abstract is subject to change.
+
 
 Overview and Terminology
 ------
@@ -185,7 +187,6 @@ The object file, `filetrie`, should be a JSON object, for example:
 		"piecelen": 3,
 		"suffix": ".txt",
 		"rootpath": "./data",
-		"nodecount": 247160,
 		"keycount": 232006,
 		"data": null,
 		"randompoolfactor": 10,
@@ -197,7 +198,6 @@ Where:
 - **piecelen** - *integer* - The key piece length
 - **suffix** - *string* - The suffix or extension of files
 - **rootpath** - *string* - Path to the directory containing "root"
-- **nodecount** - *integer* - Total number of nodes in the FileTrie
 - **keycount** - *integer* - Total number of keys (different values) stored
 - **data** - *anything* - Any arbitrary data to store with the FileTrie
 - **randompoolfactor** - *integer* - Size factor for randomized prefix search results
