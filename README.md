@@ -1,8 +1,9 @@
 phpile
 ======
 
-A PHP implementation of FileTrie, which is a file-system-based prefix tree ("trie") data structure that's persistent, scalable, portable, and super-fast
+A PHP implementation of FileTrie, which is a file-system-based prefix tree ("trie") data structure that's persistent, scalable, portable, and super-fast.
 
+**Note:** Still in its infancy. Not recommended for use on magnetic drives if you have a very large dataset, as initial seek times can be quite slow (until cached). It's also recommended that the Reiser4 file system be used to avoid running out of inodes... though this is under review...
 
 How to use FileTrie
 ======
