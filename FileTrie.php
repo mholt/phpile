@@ -468,7 +468,7 @@ class FileTrie
 			// http://stackoverflow.com/questions/14678947/why-does-getcwd-returns-in-destruct
 			// https://bugs.php.net/bug.php?id=30957
 			// ... so, we set the cwd member variable to persist the correct value here.
-			$rootpath = $this->cwd.DIRECTORY_SEPARATOR.substr($rootpath, 2);
+			$rootpath = $this->internal->cwd.DIRECTORY_SEPARATOR.substr($rootpath, 2);
 		}
 		
 		$outfile = $this->objpath();
@@ -482,7 +482,7 @@ class FileTrie
 		}
 
 		if (@file_put_contents($outfile, json_encode($obj)."\n") === false)
-			throw new Exception("Failed to save FileTrie object to '{$outfile}'. (cwd=".$this->cwd.")");
+			throw new Exception("Failed to save FileTrie object to '{$outfile}'. (cwd=".$this->internal->cwd.")");
 
 		return true;
 	}
